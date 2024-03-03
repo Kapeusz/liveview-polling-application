@@ -26,7 +26,13 @@ defmodule PollAppWeb.PollLive.Index do
 
     case PollsManager.create_poll(poll_params["question"], poll_params["options"], current_user) do
       :ok ->
-        {:noreply, assign(socket, polls: PollsManager.list_polls(), new_poll: %{})}
+        {:noreply, assign(socket, polls: PollsManager.list_polls(), new_poll: %{}, error: nil)}
+
+      {:error, :empty_question} ->
+        {:noreply, assign(socket, error: "The poll question cannot be empty.")}
+
+      {:error, :not_enough_options} ->
+        {:noreply, assign(socket, error: "A poll must have at least two options.")}
 
       {:error, _reason} ->
         {:noreply, assign(socket, error: "Error creating poll")}

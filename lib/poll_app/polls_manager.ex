@@ -38,24 +38,39 @@ defmodule PollApp.PollsManager do
   end
 
   def handle_call({:create_poll, question, options_string, creator}, _from, state) do
-    poll_ids = Map.keys(state.polls)
-    poll_id = if Enum.empty?(poll_ids), do: 1, else: Enum.max(poll_ids) + 1
+    # Validation for empty question
+    if String.trim(question) == "" do
+      {:reply, {:error, :empty_question}, state}
+    else
+      options =
+        String.split(options_string, ",")
+        # Trim each option
+        |> Enum.map(&String.trim/1)
+        # Reject empty options
+        |> Enum.reject(&(&1 == ""))
 
-    options = String.split(options_string, ",")
-    options_votes = Enum.map(options, fn option -> {option, 0} end) |> Enum.into(%{})
+      # Validation for not enough options
+      if length(options) < 2 do
+        {:reply, {:error, :not_enough_options}, state}
+      else
+        options_votes = Enum.map(options, fn option -> {option, 0} end) |> Enum.into(%{})
+        poll_ids = Map.keys(state.polls)
+        poll_id = if Enum.empty?(poll_ids), do: 1, else: Enum.max(poll_ids) + 1
 
-    new_poll = %{
-      id: poll_id,
-      question: question,
-      options: options,
-      votes: options_votes,
-      voters: %{},
-      creator: creator
-    }
+        new_poll = %{
+          id: poll_id,
+          question: question,
+          options: options,
+          votes: options_votes,
+          voters: %{},
+          creator: creator
+        }
 
-    new_polls = Map.put(state.polls, poll_id, new_poll)
-    broadcast_update("polls:updates", {:new_poll, new_poll})
-    {:reply, :ok, %{state | polls: new_polls}}
+        new_polls = Map.put(state.polls, poll_id, new_poll)
+        broadcast_update("polls:updates", {:new_poll, new_poll})
+        {:reply, :ok, %{state | polls: new_polls}}
+      end
+    end
   end
 
   def handle_call({:vote, poll_id, user_name, option}, _from, state) do
