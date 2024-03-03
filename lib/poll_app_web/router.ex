@@ -8,16 +8,26 @@ defmodule PollAppWeb.Router do
     plug :put_root_layout, html: {PollAppWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug PollAppWeb.Plugs.AuthenticateUser
   end
 
   pipeline :api do
     plug :accepts, ["json"]
   end
 
+  pipeline :authenticated do
+    plug PollAppWeb.Plugs.AuthenticateUser
+  end
+
   scope "/", PollAppWeb do
     pipe_through :browser
+    get "/", SessionController, :index
+  end
 
-    get "/", PageController, :home
+  scope "/polls", PollAppWeb do
+    pipe_through [:browser, :authenticated]
+
+    live "/", PollLive.Index, :index
   end
 
   # Other scopes may use custom stacks.
