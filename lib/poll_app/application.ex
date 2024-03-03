@@ -16,6 +16,7 @@ defmodule PollApp.Application do
       # Start a worker by calling: PollApp.Worker.start_link(arg)
       # {PollApp.Worker, arg},
       {PollApp.UserSessionManager, []},
+      {PollApp.PollsManager, []},
       # Start to serve requests, typically the last entry
       PollAppWeb.Endpoint
     ]

@@ -1,4 +1,17 @@
-<form phx-submit="login">
-  <input type="text" name="user_name" placeholder="Enter your name" />
-  <button type="submit">Login</button>
+<form
+  phx-submit="login"
+  class="flex flex-col gap-4 items-center justify-center min-h-screen bg-gray-100 p-6"
+>
+  <input
+    type="text"
+    name="user_name"
+    placeholder="Enter your name"
+    class="w-full p-4 bg-white border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
+  />
+  <button
+    type="submit"
+    class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300"
+  >
+    Login
+  </button>
 </form>
