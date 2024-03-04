@@ -8,7 +8,7 @@ defmodule PollAppWeb.PollLive.Index do
     Phoenix.PubSub.subscribe(PollApp.PubSub, "polls:updates")
     polls = PollsManager.list_polls()
 
-    user_name = session["user_name"] || "anonymous"
+    user_name = session["user_name"]
 
     {:ok,
      assign(socket,
@@ -46,7 +46,7 @@ defmodule PollAppWeb.PollLive.Index do
 
     case PollsManager.vote(poll_id, user_name, option) do
       :ok ->
-        {:noreply, assign(socket, polls: PollsManager.list_polls())}
+        {:noreply, assign(socket, polls: PollsManager.list_polls(), info: "Thank you for voting")}
 
       {:error, :already_voted} ->
         {:noreply, assign(socket, error: "You have already voted on this poll")}

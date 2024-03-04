@@ -1,34 +1,34 @@
 defmodule PollApp.PollsManager do
   use GenServer
-  require Logger
 
   # Start the GenServer
-  def start_link(_opts) do
-    GenServer.start_link(__MODULE__, %{polls: %{}, votes: %{}}, name: __MODULE__)
+  def start_link(opts \\ []) do
+    name = Keyword.get(opts, :name, __MODULE__)
+    GenServer.start_link(__MODULE__, %{polls: %{}, votes: %{}}, name: name)
   end
 
   def init(_) do
     {:ok, %{polls: %{}, votes: %{}}}
   end
 
-  def create_poll(question, options, user_name) do
-    GenServer.call(__MODULE__, {:create_poll, question, options, user_name})
+  def create_poll(question, options, user_name, gen_server_name \\ __MODULE__) do
+    GenServer.call(gen_server_name, {:create_poll, question, options, user_name})
   end
 
-  def list_polls do
-    GenServer.call(__MODULE__, :list_polls)
+  def list_polls(gen_server_name \\ __MODULE__) do
+    GenServer.call(gen_server_name, :list_polls)
   end
 
-  def vote(poll_id, user_name, option) do
-    GenServer.call(__MODULE__, {:vote, poll_id, user_name, option})
+  def vote(poll_id, user_name, option, gen_server_name \\ __MODULE__) do
+    GenServer.call(gen_server_name, {:vote, poll_id, user_name, option})
   end
 
-  def get_poll(poll_id) do
-    GenServer.call(__MODULE__, {:get_poll, poll_id})
+  def get_poll(poll_id, gen_server_name \\ __MODULE__) do
+    GenServer.call(gen_server_name, {:get_poll, poll_id})
   end
 
-  def delete_poll(poll_id) do
-    GenServer.call(__MODULE__, {:delete_poll, poll_id})
+  def delete_poll(poll_id, gen_server_name \\ __MODULE__) do
+    GenServer.call(gen_server_name, {:delete_poll, poll_id})
   end
 
   # Server callbacks
@@ -99,7 +99,7 @@ defmodule PollApp.PollsManager do
       {:ok, poll} ->
         {:reply, {:ok, poll}, state}
 
-      {:error, _} ->
+      :error ->
         {:reply, {:error, :not_found}, state}
     end
   end
